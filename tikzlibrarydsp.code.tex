@@ -17,13 +17,19 @@
 %
 % -------------------------------------------------------------------------
 
-\usetikzlibrary{arrows, calc, positioning, decorations.markings, shapes}
+\usetikzlibrary{arrows, 
+	calc, 
+	positioning, 
+	decorations.markings, 
+	shapes,
+	decorations}
 
 % -------------------------------------------------------------------------
 % Parameters for the library
 
 \newcommand{\dsplinewidth}{0.25mm}           % Line width for connections
 \newcommand{\dspblocklinewidth}{0.3mm}       % Line width for blocks
+\newcommand{\dspborderdashlength}{1mm}
 \newcommand{\dspoperatordiameter}{4mm}       % Diameter for adder, multiplier, mixer
 \newcommand{\dspoperatorlabelspacing}{2mm}   % Distance from symbol to label for adder, multiplier, mixer
 \newcommand{\dspnoderadius}{1mm}             % Filled and empty node
@@ -246,49 +252,324 @@
 	}
 }
 
+\pgfdeclareshape{dspshapeadaptive}{
+	
+	\inheritsavedanchors[from={rectangle}]
+	\inheritbackgroundpath[from={rectangle}]
+	\inheritanchorborder[from={rectangle}]
+	\foreach \x in {center, mid, mid west, mid east, base, base west, base east,
+		north, north east, east, south east, south, south west, west, north west}{
+		\inheritanchor[from={rectangle}]{\x}
+	}
+	
+	\anchor{arrowstart}
+	{	
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\southwest
+		\advance\pgf@x by -0.05\pgf@xa
+		\advance\pgf@y by 0.3\pgf@ya
+	}
+
+	\anchor{arrowend}
+	{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast
+		\advance\pgf@x by 0.05\pgf@xa
+		\advance\pgf@y by -0.3\pgf@ya
+	}
+	
+	\behindbackgroundpath
+	{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		
+		\southwest
+		\advance\pgf@x by -0.05\pgf@xa
+		\advance\pgf@y by 0.3\pgf@ya
+		\pgfpathmoveto{\pgfpoint{\pgf@x}{\pgf@y}}
+		
+		\northeast
+		\advance\pgf@x by 0.05\pgf@xa
+		\advance\pgf@y by -0.3\pgf@ya
+		
+		\pgfpathlineto{\pgfpoint{\pgf@x}{\pgf@y}}
+		\pgfsetarrowsend{latex}
+		\pgfsetlinewidth{\dsplinewidth}
+		\pgfsetroundcap
+		\pgfusepath{stroke}
+	}
+
+	\beforebackgroundpath
+	{
+    	\pgfpathrectanglecorners
+		{\pgfpointadd{\southwest}{\pgfpoint{\dspblocklinewidth}{\dspblocklinewidth}}}
+		{\pgfpointadd{\northeast}{\pgfpointscale{-1}{\pgfpoint{\dspblocklinewidth}{\dspblocklinewidth}}}}
+		
+		\color{white}
+		\pgfusepath{fill}
+	}
+		
+	
+}
+
+% -------------------------------------------------------------------------
+% Decoration for corner-aligned dashed border
+%--------------------------------------------------------------------------
+%https://tex.stackexchange.com/questions/280187/create-corner-aligned-dashed-rectangles-using-tikz
+
+\def\pgf@dec@dashon{5pt}
+\def\pgf@dec@dashoff{5pt}
+\pgfkeys{/pgf/decoration/.cd,
+	dash on/.store in=\pgf@dec@dashon,
+	dash off/.store in=\pgf@dec@dashoff
+}
+\pgfdeclaredecoration{aligned dash}{start}{
+	\state{start}[width=0pt, next state=pre-corner,persistent precomputation={
+		\pgfextract@process\pgffirstpoint{\pgfpointdecoratedinputsegmentfirst}%
+		\pgfextract@process\pgfsecondpoint{\pgfpointdecoratedinputsegmentlast}%
+		\pgfmathsetlengthmacro\pgf@dec@dashon{\pgf@dec@dashon}%
+		\pgfmathsetlengthmacro\pgf@dec@dashoff{\pgf@dec@dashoff}%
+		\pgfmathsetlengthmacro\pgf@dec@halfdash{\pgf@dec@dashon/2}%
+	}]{}
+	\state{pre-corner}[width=\pgfdecoratedinputsegmentlength, next state=post-corner, persistent precomputation={
+		%
+		\pgfmathparse{int(ceil((\pgfdecoratedinputsegmentlength-\pgf@dec@dashon-\pgf@dec@dashoff)/(\pgf@dec@dashon+\pgf@dec@dashoff)))}%
+		\let\pgf@n=\pgfmathresult
+		\pgfmathsetlengthmacro\pgf@b%
+		{\pgfdecoratedinputsegmentlength/(\pgf@n+1)-\pgf@dec@dashon}%
+		\ifdim\pgf@b<\pgf@dec@dashoff\relax%
+		\pgfmathparse{int(\pgf@n-1)}\let\pgf@n=\pgfmathresult%
+		\pgfmathsetlengthmacro\pgf@b%
+		{\pgfdecoratedinputsegmentlength/(\pgf@n+1)-\pgf@dec@dashon}%
+		\fi%
+		\pgfmathsetlengthmacro\pgf@b{\pgf@b+\pgf@dec@dashon}%
+	}]{%
+		\pgfmathloop
+		\ifnum\pgfmathcounter>\pgf@n%
+		\else%
+		\pgfpathmoveto{\pgfpoint{\pgf@b*\pgfmathcounter-\pgf@dec@halfdash}{0pt}}%
+		\pgfpathlineto{\pgfpoint{\pgf@b*\pgfmathcounter+\pgf@dec@halfdash}{0pt}}%
+		\repeatpgfmathloop%
+		\pgfpathmoveto%
+		{\pgfpoint{\pgfdecoratedinputsegmentlength-\pgf@dec@halfdash}{0pt}}%
+		\pgfpathlineto%
+		{\pgfpointdecoratedinputsegmentlast}
+	}
+	\state{post-corner}[width=0pt, next state=pre-corner]{
+		\pgfpathlineto{\pgfpoint{\pgf@dec@halfdash}{0pt}}%
+	}
+	\state{final}{
+		\pgftransformreset%
+		\pgfpathlineto{\pgfpointlineatdistance{\pgf@dec@halfdash}{\pgffirstpoint}{\pgfsecondpoint}}%
+	}
+}
+
+
 \makeatother
 
 % -------------------------------------------------------------------------
+% Define border styles
+%--------------------------------------------------------------------------
+
+\tikzset{aligned dash/.style=
+	{
+		decoration=
+		{
+			aligned dash, 
+			#1
+		}, 
+		decorate
+	}
+}
+
+% -------------------------------------------------------------------------
 % Define node styles
+%--------------------------------------------------------------------------
 
-\tikzset{dspadder/.style={shape=dspshapeadder,line cap=rect,line join=rect,
-	line width=\dspblocklinewidth,minimum size=\dspoperatordiameter}}
+\tikzset{dspadder/.style=
+	{
+		shape=dspshapeadder,
+		line cap=rect,
+		line join=rect,
+		line width=\dspblocklinewidth,
+		minimum size=\dspoperatordiameter
+	}
+}
 
-\tikzset{dspmultiplier/.style={shape=dspshapecircle,line cap=rect,line join=rect,
-	line width=\dspblocklinewidth,minimum size=\dspoperatordiameter}}
 
-\tikzset{dspmixer/.style={shape=dspshapemixer,line cap=rect,line join=rect,
-	line width=\dspblocklinewidth,minimum size=\dspoperatordiameter}}
+\tikzset{dspmultiplier/.style=
+	{
+		shape=dspshapecircle,
+		line cap=rect
+		,line join=rect,
+		line width=\dspblocklinewidth,
+		minimum size=\dspoperatordiameter
+	}
+}
 
-\tikzset{dspnodeopen/.style={shape=dspshapecircle,line width=\dsplinewidth,minimum size=\dspnoderadius}}
 
-\tikzset{dspnodefull/.style={shape=dspshapecirclefull,line width=\dsplinewidth,fill,minimum size=\dspnoderadius}}
+\tikzset{dspmixer/.style=
+	{
+		shape=dspshapemixer,
+		line cap=rect,
+		line join=rect,
+		line width=\dspblocklinewidth,
+		minimum size=\dspoperatordiameter
+	}
+}
+
+
+\tikzset{dspnodeopen/.style=
+	{
+		shape=dspshapecircle,
+		line width=\dsplinewidth,
+		minimum size=\dspnoderadius
+	}
+}
+
+
+\tikzset{dspnodefull/.style=
+	{
+		shape=dspshapecirclefull,
+		line width=\dsplinewidth,
+		fill,
+		minimum size=\dspnoderadius
+	}
+}
 
 % The fixed specification of text height and text depth is the somewhat
 % unaesthetic workaround to align the text in different node at the same
 % baseline. See the PGF/TikZ manual, ch. 5.1.
-\tikzset{dspsquare/.style={shape=rectangle,draw,align=center,text depth=0.3em,text height=1em,inner sep=0pt,
-	line cap=round,line join=round,line width=\dsplinewidth,minimum size=\dspsquareblocksize}}
+\tikzset{dspsquare/.style=
+	{
+		shape=rectangle,
+		draw,
+		align=center,
+		text depth=0.3em,
+		text height=1em,
+		inner sep=0pt, 
+		line cap=round,
+		line join=round,
+		line width=\dspblocklinewidth,
+		minimum size=\dspsquareblocksize
+	}
+}
 
-\tikzset{dspfilter/.style={shape=rectangle,draw,align=center,text depth=0.3em,text height=1em,inner sep=0pt,
-	line cap=round,line join=round,line width=\dsplinewidth,minimum height=\dspsquareblocksize,minimum width=\dspfilterwidth}}
 
-\tikzset{dspgain/.style={isosceles triangle, isosceles triangle apex angle=60, 
-		minimum width = \dspsquareblocksize, draw, inner sep = 0pt}}
+\tikzset{dspfilter/.style=
+	{
+		shape=rectangle,
+		draw,
+		align=center,
+		text depth=0.3em,
+		text height=1em,
+		inner sep=0pt,
+		line cap=round,
+		line join=round,
+		line width=\dsplinewidth,
+		minimum height=\dspsquareblocksize,
+		minimum width=\dspfilterwidth
+	}
+}
+
+
+\tikzset{dspgain/.style=
+	{
+		draw,
+		isosceles triangle, 
+		isosceles triangle apex angle=60,
+		minimum width = \dspsquareblocksize,  
+		inner sep = 0pt
+	}
+}
 	
-\tikzset{dspsaturate/.style={shape=dspshapesaturation, draw, line width=\dsplinewidth, 
-		minimum size=\dspsquareblocksize}}
 
-\tikzset{dspsinewave/.style={shape=dspshapesinewave, draw, line width=\dsplinewidth, 
-		minimum size=\dspsquareblocksize}}
+\tikzset{dspsaturate/.style=
+	{
+		draw,
+		shape=dspshapesaturation,
+		line width=\dspblocklinewidth, 
+		minimum size=\dspsquareblocksize
+	}
+}
+
+
+\tikzset{dspsinewave/.style=
+	{
+		draw,
+		shape=dspshapesinewave, 
+		line width=\dspblocklinewidth, 
+		minimum size=\dspsquareblocksize
+	}
+}
+
+
+\tikzset{dspadaptivefilter/.style=
+	{
+		draw,
+		shape=dspshapeadaptive,
+		line width=\dspblocklinewidth,
+		minimum height = \dspsquareblocksize, 
+		minimum width=\dspfilterwidth
+	}
+}
+
+
+\tikzset{dspsystem/.style=
+	{
+		draw,
+		line width = 0.5*\dspblocklinewidth,
+		inner sep = 10pt,
+		aligned dash =
+		{
+			dash on=\dspborderdashlength,
+			dash off=\dspborderdashlength
+		}
+	}
+}
 
 % -------------------------------------------------------------------------
 % Define "signal flow" lines
+%--------------------------------------------------------------------------
 
-\tikzset{dspline/.style={line width=\dsplinewidth},line cap=round,line join=round}
-\tikzset{dspconn/.style={->,>=dsparrow,line width=\dsplinewidth},line cap=round,line join=round}%line cap=rect,line join=miter}
-\tikzset{dspflow/.style={line width=\dsplinewidth,line cap=round,line join=round,
-  decoration={markings,mark=at position 0.5 with {\arrow{dsparrowmid}}},postaction={decorate}}}
+\tikzset{dspline/.style=
+	{
+		line width=\dsplinewidth
+	},
+	line cap=round,
+	line join=round
+}
+
+
+\tikzset{dspconn/.style=
+	{
+		->,
+		>=dsparrow,
+		line width=\dsplinewidth
+	},
+	line cap=round,
+	line join=round
+}
+
+
+\tikzset{dspflow/.style=
+	{
+		line width=\dsplinewidth,
+		line cap=round,
+		line join=round,
+		decoration=
+		{
+			markings,
+			mark=at position 0.5 with 
+			{
+				\arrow{dsparrowmid}
+			}
+		},
+		postaction={decorate}
+	}
+}
 
 % -------------------------------------------------------------------------
 % Define various utility macros
