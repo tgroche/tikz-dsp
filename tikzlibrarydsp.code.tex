@@ -29,7 +29,6 @@
 
 \newcommand{\dsplinewidth}{0.25mm}           % Line width for connections
 \newcommand{\dspblocklinewidth}{0.3mm}       % Line width for blocks
-\newcommand{\dspborderdashlength}{1mm}
 \newcommand{\dspoperatordiameter}{4mm}       % Diameter for adder, multiplier, mixer
 \newcommand{\dspoperatorlabelspacing}{2mm}   % Distance from symbol to label for adder, multiplier, mixer
 \newcommand{\dspnoderadius}{1mm}             % Filled and empty node
@@ -314,6 +313,62 @@
 	
 }
 
+
+\pgfdeclareshape{dspshapemic}{
+
+	\inheritsavedanchors[from={circle}]
+	\inheritbackgroundpath[from={circle}]
+	\inheritanchorborder[from={circle}]
+	\foreach \x in {center, mid, mid west, mid east, base, base west, base east,
+		north, north east, east, south east, south, south west, west, north west}	{
+		\inheritanchor[from={circle}]{\x}
+	}
+
+
+	\beforebackgroundpath{	
+	\pgfmathsetlength\pgf@xa{\radius}
+	
+	\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@xa}}
+	\pgfpathlineto{\pgfpoint{\pgf@xa}{-\pgf@xa}}
+	
+	\pgfusepathqstroke
+	}
+}
+
+
+\pgfdeclareshape{dspshapespeaker}{
+	
+	\inheritsavedanchors[from={rectangle}]
+	\inheritanchorborder[from={rectangle}]
+	\foreach \x in {center, mid, mid west, mid east, base, base west, base east,
+		north, north east, east, south east, south, south west, west, north west}{
+		\inheritanchor[from={rectangle}]{\x}
+	}
+
+	\anchor{speaker}
+	{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@xa=\pgf@x \pgf@ya=\pgf@y	
+		\northeast
+		\advance\pgf@x by -\pgf@xa
+		\advance\pgf@y by 0.5\pgf@ya
+	}
+
+	\backgroundpath{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@xc=\pgf@x \pgf@yc=\pgf@y
+		
+		\pgfpathmoveto{\northeast}	
+		\pgfpathlineto{\pgfpointadd{\northeast}{\pgfpoint{-\pgf@xc}{-0.5\pgf@yc}}}
+		\pgfpathlineto{\pgfpointadd{\northeast}{\pgfpoint{-\pgf@xc}{1.5\pgf@yc}}}
+		\pgfpathlineto{\pgfpointadd{\northeast}{\pgfpoint{0}{1\pgf@yc}}}
+		
+		\pgfpathrectanglecorners{\southwest}{\northeast}
+		
+	}
+
+}
+
 % -------------------------------------------------------------------------
 % Decoration for corner-aligned dashed border
 %--------------------------------------------------------------------------
@@ -322,8 +377,8 @@
 \def\pgf@dec@dashon{5pt}
 \def\pgf@dec@dashoff{5pt}
 \pgfkeys{/pgf/decoration/.cd,
-	dash on/.store in=\pgf@dec@dashon,
-	dash off/.store in=\pgf@dec@dashoff
+	/pgf/decoration/dash on/.store in=\pgf@dec@dashon,
+	/pgf/decoration/dash off/.store in=\pgf@dec@dashoff
 }
 \pgfdeclaredecoration{aligned dash}{start}{
 	\state{start}[width=0pt, next state=pre-corner,persistent precomputation={
@@ -383,6 +438,7 @@
 		decorate
 	}
 }
+
 
 % -------------------------------------------------------------------------
 % Define node styles
@@ -524,12 +580,29 @@
 		inner sep = 10pt,
 		aligned dash =
 		{
-			dash on=\dspborderdashlength,
-			dash off=\dspborderdashlength
+			%
 		}
 	}
 }
 
+
+\tikzset{dspmic/.style=
+	{
+		draw,
+		shape = dspshapemic,
+		line width = \dspblocklinewidth,
+		minimum size = \dspoperatordiameter
+	}
+}
+
+
+\tikzset{dspspeaker/.style=
+	{
+		draw,
+		shape = dspshapespeaker,
+		line width = \dspblocklinewidth,
+	}
+}
 % -------------------------------------------------------------------------
 % Define "signal flow" lines
 %--------------------------------------------------------------------------
