@@ -13,14 +13,14 @@
 % Mountain View, California, 94041, USA.
 %
 %
-% Modifications 2017 by Tycho Groche 
+% Modifications 2017 by Tycho Groche
 %
 % -------------------------------------------------------------------------
 
-\usetikzlibrary{arrows, 
-	calc, 
-	positioning, 
-	decorations.markings, 
+\usetikzlibrary{arrows,
+	calc,
+	positioning,
+	decorations.markings,
 	shapes,
 	decorations}
 
@@ -104,24 +104,24 @@
 	      \pgf@x=.5\pgf@ya
 	    \fi
 	  }
-	  
+
 	  \foreach \x in {center, mid, mid west, mid east, base, base west, base east,
 	  	north, north east, east, south east, south, south west, west, north west}{
 	  	\inheritanchor[from={circle}]{\x}
 	  }
 	  \inheritanchorborder[from={circle}]
-	  	  
+
 	  % Draw circle and embed additional code
 	  \backgroundpath
 	  {
 	    % Draw circle
 	    \pgfpathcircle{\centerpoint}{\radius}
-	    
+
 	    % Embed additional code
 	    % (Note that this code must call e.g. \pgfusepathqstroke
 	    #2
 	  }
-	
+
 		% Define anchor parametrized by the PGF key /tikz/dsp/label
 	  \anchor{text}
 	  {
@@ -172,14 +172,14 @@
 	% Coordinate offset for the plus
 	\pgfutil@tempdima=\radius
 	\pgfutil@tempdima=0.55\pgfutil@tempdima
-	
+
 	% Draw plus
 	\pgfmoveto{\pgfpointadd{\centerpoint}{\pgfpoint{0pt}{-\pgfutil@tempdima}}}
 	\pgflineto{\pgfpointadd{\centerpoint}{\pgfpoint{0pt}{ \pgfutil@tempdima}}}
-	
+
 	\pgfmoveto{\pgfpointadd{\centerpoint}{\pgfpoint{-\pgfutil@tempdima}{0pt}}}
 	\pgflineto{\pgfpointadd{\centerpoint}{\pgfpoint{ \pgfutil@tempdima}{0pt}}}
-	
+
 	\pgfusepathqstroke
 }
 
@@ -187,19 +187,19 @@
 	% Coordinate offset for the cross
 	\pgfutil@tempdima=\radius
 	\pgfutil@tempdima=0.707106781\pgfutil@tempdima
-	
+
 	% Draw cross
 	\pgfmoveto{\pgfpointadd{\centerpoint}{\pgfpoint{-\pgfutil@tempdima}{-\pgfutil@tempdima}}}
 	\pgflineto{\pgfpointadd{\centerpoint}{\pgfpoint{ \pgfutil@tempdima}{ \pgfutil@tempdima}}}
-	
+
 	\pgfmoveto{\pgfpointadd{\centerpoint}{\pgfpoint{-\pgfutil@tempdima}{ \pgfutil@tempdima}}}
 	\pgflineto{\pgfpointadd{\centerpoint}{\pgfpoint{ \pgfutil@tempdima}{-\pgfutil@tempdima}}}
-	
+
 	\pgfusepathqstroke
 }
 
 \pgfdeclareshape{dspshapesaturation}{
-	
+
 	\inheritsavedanchors[from={rectangle}]
 	\inheritbackgroundpath[from={rectangle}]
 	\inheritanchorborder[from={rectangle}]
@@ -223,8 +223,9 @@
 	}
 }
 
-\pgfdeclareshape{dspshapesinewave}{
-	
+
+\pgfdeclareshape{dspshapelowpass}{
+
 	\inheritsavedanchors[from={rectangle}]
 	\inheritbackgroundpath[from={rectangle}]
 	\inheritanchorborder[from={rectangle}]
@@ -232,7 +233,60 @@
 		north, north east, east, south east, south, south west, west, north west}{
 		\inheritanchor[from={rectangle}]{\x}
 	}
-	
+
+	\foregroundpath{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast
+		%coordinate system
+		\pgfpathmoveto{\pgfpoint{0.33\pgf@xa} {-0.33\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{0.33\pgf@xa} {0.33\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{-0.33\pgf@xa} {0.33\pgf@ya}}
+		%lowpass
+		\pgfpathmoveto{\pgfpoint{0.33\pgf@xa} {-0.2\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{0.\pgf@xa} {-0.2\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{-0.2\pgf@xa} {0.33\pgf@ya}}
+	}
+}
+
+
+\pgfdeclareshape{dspshapebandpass}{
+
+	\inheritsavedanchors[from={rectangle}]
+	\inheritbackgroundpath[from={rectangle}]
+	\inheritanchorborder[from={rectangle}]
+	\foreach \x in {center, mid, mid west, mid east, base, base west, base east,
+		north, north east, east, south east, south, south west, west, north west}{
+		\inheritanchor[from={rectangle}]{\x}
+	}
+
+	\foregroundpath{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast
+		%coordinate system
+		\pgfpathmoveto{\pgfpoint{0.33\pgf@xa} {-0.33\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{0.33\pgf@xa} {0.33\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{-0.33\pgf@xa} {0.33\pgf@ya}}
+		%lowpass
+		\pgfpathmoveto{\pgfpoint{0.15\pgf@xa} {0.33\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{0.1\pgf@xa} {-0.2\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{-0.1\pgf@xa} {-0.2\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{-0.15\pgf@xa} {0.33\pgf@ya}}
+	}
+}
+
+
+\pgfdeclareshape{dspshapesinewave}{
+
+	\inheritsavedanchors[from={rectangle}]
+	\inheritbackgroundpath[from={rectangle}]
+	\inheritanchorborder[from={rectangle}]
+	\foreach \x in {center, mid, mid west, mid east, base, base west, base east,
+		north, north east, east, south east, south, south west, west, north west}{
+		\inheritanchor[from={rectangle}]{\x}
+	}
+
 	\foregroundpath{
 		\pgfpointdiff{\northeast}{\southwest}
 		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
@@ -252,7 +306,7 @@
 }
 
 \pgfdeclareshape{dspshapeadaptive}{
-	
+
 	\inheritsavedanchors[from={rectangle}]
 	\inheritbackgroundpath[from={rectangle}]
 	\inheritanchorborder[from={rectangle}]
@@ -260,9 +314,9 @@
 		north, north east, east, south east, south, south west, west, north west}{
 		\inheritanchor[from={rectangle}]{\x}
 	}
-	
+
 	\anchor{arrowstart}
-	{	
+	{
 		\pgfpointdiff{\northeast}{\southwest}
 		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
 		\southwest
@@ -278,21 +332,21 @@
 		\advance\pgf@x by 0.05\pgf@xa
 		\advance\pgf@y by -0.3\pgf@ya
 	}
-	
+
 	\behindbackgroundpath
 	{
 		\pgfpointdiff{\northeast}{\southwest}
 		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
-		
+
 		\southwest
 		\advance\pgf@x by -0.05\pgf@xa
 		\advance\pgf@y by 0.3\pgf@ya
 		\pgfpathmoveto{\pgfpoint{\pgf@x}{\pgf@y}}
-		
+
 		\northeast
 		\advance\pgf@x by 0.05\pgf@xa
 		\advance\pgf@y by -0.3\pgf@ya
-		
+
 		\pgfpathlineto{\pgfpoint{\pgf@x}{\pgf@y}}
 		\pgfsetarrowsend{latex}
 		\pgfsetlinewidth{\dsplinewidth}
@@ -305,12 +359,56 @@
     	\pgfpathrectanglecorners
 		{\pgfpointadd{\southwest}{\pgfpoint{\dspblocklinewidth}{\dspblocklinewidth}}}
 		{\pgfpointadd{\northeast}{\pgfpointscale{-1}{\pgfpoint{\dspblocklinewidth}{\dspblocklinewidth}}}}
-		
+
 		\color{white}
 		\pgfusepath{fill}
 	}
-		
-	
+
+
+}
+
+
+\pgfdeclareshape{dspshapefourpole}{
+
+	\inheritsavedanchors[from={rectangle}]
+	\inheritbackgroundpath[from={rectangle}]
+	\inheritanchorborder[from={rectangle}]
+	\foreach \x in {center, mid, mid west, mid east, base, base west, base east,
+		north, north east, east, south east, south, south west, west, north west}{
+		\inheritanchor[from={rectangle}]{\x}
+	}
+
+	\anchor{west top}
+	{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@ya=\pgf@y
+		\pgf@process{\southwest}
+		\advance\pgf@y by 0.7\pgf@ya
+	}
+
+	\anchor{west bottom}
+	{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@ya=\pgf@y
+		\pgf@process{\southwest}
+		\advance\pgf@y by 0.3\pgf@ya
+	}
+
+	\anchor{east top}
+	{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@ya=\pgf@y
+		\pgf@process{\northeast}
+		\advance\pgf@y by -0.3\pgf@ya
+	}
+
+	\anchor{east bottom}
+	{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@ya=\pgf@y
+		\pgf@process{\northeast}
+		\advance\pgf@y by -0.7\pgf@ya
+	}
 }
 
 
@@ -325,19 +423,19 @@
 	}
 
 
-	\beforebackgroundpath{	
+	\beforebackgroundpath{
 	\pgfmathsetlength\pgf@xa{\radius}
-	
+
 	\pgfpathmoveto{\pgfpoint{\pgf@xa}{\pgf@xa}}
 	\pgfpathlineto{\pgfpoint{\pgf@xa}{-\pgf@xa}}
-	
+
 	\pgfusepathqstroke
 	}
 }
 
 
 \pgfdeclareshape{dspshapespeaker}{
-	
+
 	\inheritsavedanchors[from={rectangle}]
 	\inheritanchorborder[from={rectangle}]
 	\foreach \x in {center, mid, mid west, mid east, base, base west, base east,
@@ -348,7 +446,7 @@
 	\anchor{speaker}
 	{
 		\pgfpointdiff{\northeast}{\southwest}
-		\pgf@xa=\pgf@x \pgf@ya=\pgf@y	
+		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
 		\northeast
 		\advance\pgf@x by -\pgf@xa
 		\advance\pgf@y by 0.5\pgf@ya
@@ -357,14 +455,14 @@
 	\backgroundpath{
 		\pgfpointdiff{\northeast}{\southwest}
 		\pgf@xc=\pgf@x \pgf@yc=\pgf@y
-		
-		\pgfpathmoveto{\northeast}	
+
+		\pgfpathmoveto{\northeast}
 		\pgfpathlineto{\pgfpointadd{\northeast}{\pgfpoint{-\pgf@xc}{-0.5\pgf@yc}}}
 		\pgfpathlineto{\pgfpointadd{\northeast}{\pgfpoint{-\pgf@xc}{1.5\pgf@yc}}}
 		\pgfpathlineto{\pgfpointadd{\northeast}{\pgfpoint{0}{1\pgf@yc}}}
-		
+
 		\pgfpathrectanglecorners{\southwest}{\northeast}
-		
+
 	}
 
 }
@@ -432,9 +530,9 @@
 	{
 		decoration=
 		{
-			aligned dash, 
+			aligned dash,
 			#1
-		}, 
+		},
 		decorate
 	}
 }
@@ -505,7 +603,7 @@
 		align=center,
 		text depth=0.3em,
 		text height=1em,
-		inner sep=0pt, 
+		inner sep=0pt,
 		line cap=round,
 		line join=round,
 		line width=\dspblocklinewidth,
@@ -534,19 +632,19 @@
 \tikzset{dspgain/.style=
 	{
 		draw,
-		isosceles triangle, 
+		isosceles triangle,
 		isosceles triangle apex angle=60,
-		minimum width = \dspsquareblocksize,  
+		minimum width = \dspsquareblocksize,
 		inner sep = 0pt
 	}
 }
-	
+
 
 \tikzset{dspsaturate/.style=
 	{
 		draw,
 		shape=dspshapesaturation,
-		line width=\dspblocklinewidth, 
+		line width=\dspblocklinewidth,
 		minimum size=\dspsquareblocksize
 	}
 }
@@ -555,8 +653,28 @@
 \tikzset{dspsinewave/.style=
 	{
 		draw,
-		shape=dspshapesinewave, 
-		line width=\dspblocklinewidth, 
+		shape=dspshapesinewave,
+		line width=\dspblocklinewidth,
+		minimum size=\dspsquareblocksize
+	}
+}
+
+
+\tikzset{dsplowpass/.style=
+	{
+		draw,
+		shape=dspshapelowpass,
+		line width=\dspblocklinewidth,
+		minimum size=\dspsquareblocksize
+	}
+}
+
+
+\tikzset{dspbandpass/.style=
+	{
+		draw,
+		shape=dspshapebandpass,
+		line width=\dspblocklinewidth,
 		minimum size=\dspsquareblocksize
 	}
 }
@@ -567,7 +685,7 @@
 		draw,
 		shape=dspshapeadaptive,
 		line width=\dspblocklinewidth,
-		minimum height = \dspsquareblocksize, 
+		minimum height = \dspsquareblocksize,
 		minimum width=\dspfilterwidth
 	}
 }
@@ -603,6 +721,17 @@
 		line width = \dspblocklinewidth,
 	}
 }
+
+
+\tikzset{dspfourpole/.style=
+	{
+		draw,
+		shape = dspshapefourpole,
+		line width = \dspblocklinewidth,
+	}
+}
+
+
 % -------------------------------------------------------------------------
 % Define "signal flow" lines
 %--------------------------------------------------------------------------
@@ -635,7 +764,7 @@
 		decoration=
 		{
 			markings,
-			mark=at position 0.5 with 
+			mark=at position 0.5 with
 			{
 				\arrow{dsparrowmid}
 			}
