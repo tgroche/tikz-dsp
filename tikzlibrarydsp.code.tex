@@ -305,6 +305,32 @@
 	}
 }
 
+
+\pgfdeclareshape{dspshapepulse}{
+
+	\inheritsavedanchors[from={rectangle}]
+	\inheritbackgroundpath[from={rectangle}]
+	\inheritanchorborder[from={rectangle}]
+	\foreach \x in {center, mid, mid west, mid east, base, base west, base east,
+		north, north east, east, south east, south, south west, west, north west}{
+		\inheritanchor[from={rectangle}]{\x}
+	}
+
+	\foregroundpath{
+		\pgfpointdiff{\northeast}{\southwest}
+		\pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast
+
+		\pgfpathmoveto{\pgfpoint{0.3\pgf@xa}{0.2\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{0.15\pgf@xa}{0.2\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{0.15\pgf@xa}{-0.15\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{-0.15\pgf@xa}{-0.15\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{-0.15\pgf@xa}{0.2\pgf@ya}}
+		\pgfpathlineto{\pgfpoint{-0.3\pgf@xa}{0.2\pgf@ya}}
+	}
+}
+
+
 \pgfdeclareshape{dspshapeadaptive}{
 
 	\inheritsavedanchors[from={rectangle}]
@@ -654,6 +680,16 @@
 	{
 		draw,
 		shape=dspshapesinewave,
+		line width=\dspblocklinewidth,
+		minimum size=\dspsquareblocksize
+	}
+}
+
+
+\tikzset{dsppulse/.style=
+	{
+		draw,
+		shape=dspshapepulse,
 		line width=\dspblocklinewidth,
 		minimum size=\dspsquareblocksize
 	}
