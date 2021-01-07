@@ -409,7 +409,7 @@
 		\pgfpointdiff{\northeast}{\southwest}
 		\pgf@ya=\pgf@y
 		\pgf@process{\southwest}
-		\advance\pgf@y by -0.8\pgf@ya
+		\advance\pgf@y by -0.85\pgf@ya
 	}
 
 	\anchor{west bottom}
@@ -417,7 +417,7 @@
 		\pgfpointdiff{\northeast}{\southwest}
 		\pgf@ya=\pgf@y
 		\pgf@process{\southwest}
-		\advance\pgf@y by -0.2\pgf@ya
+		\advance\pgf@y by -0.15\pgf@ya
 	}
 
 	\anchor{east top}
@@ -425,7 +425,7 @@
 		\pgfpointdiff{\northeast}{\southwest}
 		\pgf@ya=\pgf@y
 		\pgf@process{\northeast}
-		\advance\pgf@y by 0.2\pgf@ya
+		\advance\pgf@y by 0.15\pgf@ya
 	}
 
 	\anchor{east bottom}
@@ -433,7 +433,7 @@
 		\pgfpointdiff{\northeast}{\southwest}
 		\pgf@ya=\pgf@y
 		\pgf@process{\northeast}
-		\advance\pgf@y by 0.8\pgf@ya
+		\advance\pgf@y by 0.85\pgf@ya
 	}
 }
 
@@ -763,8 +763,9 @@
 	{
 		draw,
 		shape = dspshapefourpole,
+		inner sep = 0cm,
 		line width = \dspblocklinewidth,
-		minimum size = 2\dspsquareblocksize
+		minimum size = 2.6*\dspsquareblocksize
 	}
 }
 
